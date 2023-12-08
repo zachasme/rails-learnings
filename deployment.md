@@ -22,7 +22,7 @@ network:
 ## Adding a service
 
 ```
-wget -O jammy.img \
+wget -O /var/lib/libvirt/images/base/jammy.img \
      https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img
 
 sudo qemu-img convert -f qcow2 -O qcow2 \
