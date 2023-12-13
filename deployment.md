@@ -21,22 +21,44 @@ network:
 
 ## Adding a service
 
-```
-wget -O /var/lib/libvirt/images/base/jammy.img \
-     https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img
+> https://earlruby.org/2023/02/quickly-create-guest-vms-using-virsh-cloud-image-files-and-cloud-init/
 
-sudo qemu-img convert -f qcow2 -O qcow2 \
-              /var/lib/libvirt/images/base/jammy.img \
-              /var/lib/libvirt/images/GUEST_NAME.qcow2
-sudo qemu-img resize /var/lib/libvirt/images/GUEST_NAME.qcow2 40G
+```sh
+IMAGES="/var/lib/libvirt/images"
+BRIDGE=br0
+OS_NAME=jammy
+GUEST_NAME=mohnny
+CPU=1
+MEMORY=2048
+DISK=20G
+IP=192.168.1.105
 
-virt-install --name GUEST_NAME \
-             --vcpus 1 --memory 2048 --os-variant ubuntu22.04 \
-             --network bridge=br0,model=virtio --graphics none \
-             --events on_reboot=restart \
-             --import --disk /var/lib/libvirt/images/base/jammy.img \
-             --noautoconsole --cloud-init user-data=/u/kvm/guests-config/user-data-#{guest_name},network-config=/u/kvm/guests-config/network-config-#{guest_name} \
+# download base
+sudo wget -O "${IMAGES}/base/${OS_NAME}.img" \
+     "https://cloud-images.ubuntu.com/${OS_NAME}/current/${OS_NAME}-server-cloudimg-amd64-disk-kvm.img"
+
+# sudo qemu-img convert -f qcow2 -O qcow2 \
+#              "${IMAGES}/base/${OS_NAME}.img" \
+#              "${IMAGES}/${GUEST_NAME}.qcow2"
+
+# create guest image
+sudo qemu-img create -b "${IMAGES}/base/${OS_NAME}.img" \
+                     -F qcow2 -f qcow2 \
+                     "${IMAGES}/guests/${GUEST_NAME}.img" \
+                     "${DISK}"
+
+# create vm
+virt-install --name "${GUEST_NAME}" \
+             --memory "${MEMORY}" \
+             --vcpus "${CPU}" \
+             --import \
+             --cloud-init "root-password-generate=yes,disable=yes" \
+             --osinfo "detect=on" \
+             --disk "${IMAGES}/guests/${GUEST_NAME}.img" \
+             --network "bridge=${BRIDGE},model=virtio" \
+             --graphics none \
+             --autoconsole none \
              --autostart
 ```
-
+# LlcMYvzFg6YLQHht
 [ubuntu-server]: https://ubuntu.com/download/server
