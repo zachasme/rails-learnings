@@ -31,17 +31,22 @@ GUEST_NAME=mohnny
 CPU=1
 MEMORY=2048
 DISK=20G
-IP=192.168.1.105
+IP_ADDRESS=192.168.1.105
 
-# download base
+# cloud init
+cat <<EOF > /tmp/network-config.yaml
+network:
+  version: 2
+  ethernets:
+    eth0:
+      adresses: [${IP_ADDRESS}]
+EOF
+
+# download base (cloud) image
 sudo wget -O "${IMAGES}/base/${OS_NAME}.img" \
      "https://cloud-images.ubuntu.com/${OS_NAME}/current/${OS_NAME}-server-cloudimg-amd64-disk-kvm.img"
 
-# sudo qemu-img convert -f qcow2 -O qcow2 \
-#              "${IMAGES}/base/${OS_NAME}.img" \
-#              "${IMAGES}/${GUEST_NAME}.qcow2"
-
-# create guest image
+# create guest image backed by base image
 sudo qemu-img create -b "${IMAGES}/base/${OS_NAME}.img" \
                      -F qcow2 -f qcow2 \
                      "${IMAGES}/guests/${GUEST_NAME}.img" \
@@ -49,16 +54,16 @@ sudo qemu-img create -b "${IMAGES}/base/${OS_NAME}.img" \
 
 # create vm
 virt-install --name "${GUEST_NAME}" \
+             --network "bridge=${BRIDGE},model=virtio" \
              --memory "${MEMORY}" \
              --vcpus "${CPU}" \
              --import \
-             --cloud-init "root-password-generate=yes,disable=yes" \
-             --osinfo "detect=on" \
              --disk "${IMAGES}/guests/${GUEST_NAME}.img" \
-             --network "bridge=${BRIDGE},model=virtio" \
+             --cloud-init "root-password-generate=yes,disable=yes network-config=/tmp/network-config.yaml" \
+             --osinfo "detect=on" \
              --graphics none \
              --autoconsole none \
              --autostart
 ```
-# LlcMYvzFg6YLQHht
+
 [ubuntu-server]: https://ubuntu.com/download/server
