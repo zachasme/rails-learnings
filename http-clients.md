@@ -1,0 +1,1 @@
+See https://honeyryderchuck.gitlab.io/2023/10/15/state-of-ruby-http-clients-use-httpx.html

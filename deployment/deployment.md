@@ -26,24 +26,34 @@ network:
 ```sh
 IMAGES="/var/lib/libvirt/images"
 BRIDGE=br0
+OS=ubuntu22.04
 OS_NAME=jammy
 GUEST_NAME=mohnny
 CPU=1
 MEMORY=2048
 DISK=20G
-IP_ADDRESS=192.168.1.105
+IP_ADDRESS="192.168.1.77"
+GATEWAY="192.168.1.1"
+SUBNET="/24"
+SSH_KEY=""
 
 # cloud init
 cat <<EOF > /tmp/network-config.yaml
 network:
   version: 2
+  renderer: networkd
   ethernets:
-    eth0:
-      adresses: [${IP_ADDRESS}]
+    enp1s0:
+      addresses: [${IP_ADDRESS}${SUBNET}]
+      gateway4: 192.168.1.1
+      nameservers:
+        search: [ localdomain ]
+        addresses:
+          - "192.168.1.1"
 EOF
 
 # download base (cloud) image
-sudo wget -O "${IMAGES}/base/${OS_NAME}.img" \
+sudo wget --timestamping -O "${IMAGES}/base/${OS_NAME}.img" \
      "https://cloud-images.ubuntu.com/${OS_NAME}/current/${OS_NAME}-server-cloudimg-amd64-disk-kvm.img"
 
 # create guest image backed by base image
@@ -59,8 +69,8 @@ virt-install --name "${GUEST_NAME}" \
              --vcpus "${CPU}" \
              --import \
              --disk "${IMAGES}/guests/${GUEST_NAME}.img" \
-             --cloud-init "root-password-generate=yes,disable=yes network-config=/tmp/network-config.yaml" \
-             --osinfo "detect=on" \
+             --cloud-init "disable=on,root-ssh-key=${SSH_KEY},network-config=/tmp/network-config.yaml" \
+             --osinfo "${OS}" \
              --graphics none \
              --autoconsole none \
              --autostart
