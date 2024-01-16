@@ -1,7 +1,11 @@
 # Remove a Column
 > See https://api.rubyonrails.org/classes/ActiveRecord/ModelSchema/ClassMethods.html#method-i-ignored_columns-3D
 
-1. (only for non-null without default) Set a default value
+### Steps:
+1. Make sure column has default value or is nullable.
+    <details>
+    <summary>Skip if column is nullable.</summary>
+
     ```ruby
     class ChangeDefaultNameForUsers < ActiveRecord::Migration[7.3]
       def change
@@ -10,6 +14,9 @@
     end
     ```
     Deploy and migrate!
+
+    </details>
+
 2.  Ignore the column
     ```ruby
     class User < ApplicationRecord
@@ -26,3 +33,4 @@
     end
     ```
 5.  Deploy and migrate!
+6.  Remove the `ignored_columns` line from previous step.
