@@ -5,18 +5,29 @@
 > Ubuntu Server, KVM
 
 - Install [Ubuntu Server][ubuntu-server] on your machine
-- Configure bridge network using Netplan
 - Install KVM
+- Configure bridge network using Netplan
 
 ```yaml
 network:
   version: 2
   renderer: networkd
 
+  ethernets:
+    eno1:
+      dhcp4: false
+
   bridges:
     br0:
-      dhcp4: yes
-      interfaces: [enp1s0]
+      interfaces: [ eno1 ]
+      dhcp4: false
+      addresses: [192.168.1.60/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [1.1.1.1]
+      parameters:
+        stp: true
+        forward-delay: 4
 ```
 
 ## Adding a service
