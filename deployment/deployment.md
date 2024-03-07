@@ -40,14 +40,15 @@ IMAGES="/var/lib/libvirt/images"
 BRIDGE=br0
 OS_VERSION=22.04
 OS_NAME=jammy
-GUEST_NAME=mohnny
 CPU=1
 MEMORY=2048
 DISK=20G
-IP_ADDRESS="192.168.1.77"
 GATEWAY="192.168.1.1"
 SUBNET="/24"
-SSH_KEY=""
+
+IP_ADDRESS="" # 192.168.1.77
+GUEST_NAME="" # mohnny
+SSH_KEY="" # /home/zach/mohnny.pub
 
 # cloud init
 cat <<EOF > /tmp/network-config.yaml
@@ -69,7 +70,7 @@ sudo wget --timestamping -O "${IMAGES}/base/ubuntu-${OS_NAME}-${TIMESTAMP}.img" 
      "https://cloud-images.ubuntu.com/minimal/releases/${OS_NAME}/release/ubuntu-${OS_VERSION}-minimal-cloudimg-amd64.img"
 
 # create guest image backed by base image
-sudo qemu-img create -b "${IMAGES}/base/${OS_NAME}.img" \
+sudo qemu-img create -b "${IMAGES}/base/ubuntu-${OS_NAME}-${TIMESTAMP}.img" \
                      -F qcow2 -f qcow2 \
                      "${IMAGES}/guests/${GUEST_NAME}.img" \
                      "${DISK}"
@@ -82,7 +83,7 @@ virt-install --name "${GUEST_NAME}" \
              --import \
              --disk "${IMAGES}/guests/${GUEST_NAME}.img" \
              --cloud-init "disable=on,root-ssh-key=${SSH_KEY},network-config=/tmp/network-config.yaml" \
-             --osinfo "${OS}" \
+             --osinfo "ubuntu${OS_VERSION}" \
              --graphics none \
              --autoconsole none \
              --autostart
