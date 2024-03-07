@@ -35,10 +35,10 @@ network:
 > https://earlruby.org/2023/02/quickly-create-guest-vms-using-virsh-cloud-image-files-and-cloud-init/
 
 ```sh
-TIMESTAMP = $(date +%s)
+TIMESTAMP="$(date +%s)"
 IMAGES="/var/lib/libvirt/images"
 BRIDGE=br0
-OS=ubuntu22.04
+OS_VERSION=22.04
 OS_NAME=jammy
 GUEST_NAME=mohnny
 CPU=1
@@ -65,8 +65,8 @@ network:
 EOF
 
 # download base (cloud) image
-sudo wget --timestamping -O "${IMAGES}/base/${OS_NAME}-${TIMESTAMP}.img" \
-     "https://cloud-images.ubuntu.com/${OS_NAME}/current/${OS_NAME}-server-cloudimg-amd64-disk-kvm.img"
+sudo wget --timestamping -O "${IMAGES}/base/ubuntu-${OS_NAME}-${TIMESTAMP}.img" \
+     "https://cloud-images.ubuntu.com/minimal/releases/${OS_NAME}/release/ubuntu-${OS_VERSION}-minimal-cloudimg-amd64.img"
 
 # create guest image backed by base image
 sudo qemu-img create -b "${IMAGES}/base/${OS_NAME}.img" \
