@@ -17,5 +17,5 @@ gem install rails
 Rebundle
 
 ```sh
-bundle update
+bundle
 ```
